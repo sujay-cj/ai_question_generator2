@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Generator Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+        }
+
+        .search-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], input[type="search"] {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .results-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .results-title {
+            font-size: 1.2em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .question-list {
+            list-style: none;
+        }
+
+        .question-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s ease;
+        }
+
+        .question-item:hover {
+            transform: translateX(10px);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .topic-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .topic-card h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Question Generator Pro</h1>
+            <p>Find similar questions or generate new ones from our knowledge base</p>
+        </div>
+
+        <div class="search-section">
+            <div class="input-group">
+                <input type="search" placeholder="Enter your question here..." id="questionInput">
+                <button class="btn btn-primary" id="searchBtn">Find Similar Questions</button>
+            </div>
+            <div class="results-section">
+                <h3 class="results-title">Similar Questions</h3>
+                <ul class="question-list" id="similarQuestions">
+                    <!-- Similar questions will be populated here -->
+                </ul>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="topic-card">
+                <h3>Generate New Questions</h3>
+                <div class="input-group">
+                    <input type="text" placeholder="Enter topic..." id="topicInput">
+                    <button class="btn btn-primary" id="generateBtn">Generate</button>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3>Popular Topics</h3>
+                <div class="topics-grid" id="popularTopics">
+                    <!-- Popular topics will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Replace the sample data and event listeners with:
+
+document.getElementById('searchBtn').addEventListener('click', async () => {
+  const question = document.getElementById('questionInput').value;
+  
+  try {
+    const response = await fetch('http://localhost:5000/api/similar-questions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question })
+    });
+    
+    const data = await response.json();
+    displaySimilarQuestions(data.similarQuestions);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+});
+
+document.getElementById('generateBtn').addEventListener('click', async () => {
+  const topic = document.getElementById('topicInput').value;
+  
+  try {
+    const response = await fetch('http://localhost:5000/api/generate-questions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic })
+    });
+    
+    const data = await response.json();
+    alert(`New generated question: ${data.newQuestion}`);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+});
+
+function displaySimilarQuestions(questions) {
+  const similarQuestionsList = document.getElementById('similarQuestions');
+  similarQuestionsList.innerHTML = questions.map(question => `
+    <li class="question-item">
+      <span>${question}</span>
+      <span class="badge">Similar Question</span>
+    </li>
+  `).join('');
+}
+    </script>
+</body>
+</html>
